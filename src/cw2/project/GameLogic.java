@@ -35,26 +35,32 @@ public class GameLogic {
             System.out.println(player.getName() + "'s hand: " + player.getHand());
         }
 
-        // Each player chooses bonus suit
+        // Each player chooses bonus suit and swaps cards
         for (Player player : players) {
-            System.out.print(player.getName() + ", choose your bonus suit (Clubs/Diamonds/Hearts/Spades): ");
-            String suit = scanner.nextLine();
-            player.selectBonusSuit(suit);
-        }
+            if (player.getName().equalsIgnoreCase("Computer")) {
+                // Computer player logic
+                ComputerLogic ai = new ComputerLogic(player, deck);
+                ai.chooseBonusSuit();
+                ai.swapCards();
+            } else {
+                // Human player chooses bonus suit
+                System.out.print(player.getName() + ", choose your bonus suit (Clubs/Diamonds/Hearts/Spades): ");
+                String suit = scanner.nextLine();
+                player.selectBonusSuit(suit);
 
-        // Each player can swap up to 4 cards
-        for (Player player : players) {
-            System.out.println("\n" + player.getName() + "'s current hand: " + player.getHand());
-            System.out.print("Enter card positions to swap (0-4, separated by space, max 4), or press Enter to keep all: ");
-            String line = scanner.nextLine();
-            if (!line.isEmpty()) {
-                String[] parts = line.trim().split("\\s+");
-                int[] indexes = new int[parts.length];
-                for (int i = 0; i < parts.length; i++) {
-                    indexes[i] = Integer.parseInt(parts[i]);
+                // Human player can swap up to 4 cards
+                System.out.println("\n" + player.getName() + "'s current hand: " + player.getHand());
+                System.out.print("Enter card positions to swap (0-4, separated by space, max 4), or press Enter to keep all: ");
+                String line = scanner.nextLine();
+                if (!line.isEmpty()) {
+                    String[] parts = line.trim().split("\\s+");
+                    int[] indexes = new int[parts.length];
+                    for (int i = 0; i < parts.length; i++) {
+                        indexes[i] = Integer.parseInt(parts[i]);
+                    }
+                    player.swapCards(indexes, deck);
+                    System.out.println("Updated hand: " + player.getHand());
                 }
-                player.swapCards(indexes, deck);
-                System.out.println("Updated hand: " + player.getHand());
             }
         }
 
