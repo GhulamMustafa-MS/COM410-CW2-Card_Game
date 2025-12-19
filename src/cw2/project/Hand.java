@@ -18,20 +18,20 @@ public class Hand {
         Arrays.sort(cards);  // Sort the 5 cards (Card implements Comparable)
     }
 
-public boolean inHand(Card searchCard) {
-    for (int i = 0; i < 5; i++) {
+    public boolean inHand(Card searchCard) {
+        for (int i = 0; i < 5; i++) {
 
-        if (cards[i].compareTo(searchCard) > 0) {
-            return false;  // can't be found beyond this point
+            if (cards[i].compareTo(searchCard) > 0) {
+                return false;  // can't be found beyond this point
+            }
+            // If ranks match
+            if (cards[i].compareTo(searchCard) == 0) {
+                return true;
+            }
         }
-        // If ranks match
-        if (cards[i].compareTo(searchCard) == 0) {
-            return true;
-        }
+
+        return false; 
     }
-
-    return false; 
-}
     // Method: String representation of the 5-card hand
     public String toString() {
         String result = "";
@@ -40,28 +40,31 @@ public boolean inHand(Card searchCard) {
         }
         return result;
     }
-
-    // Main method for the scenario
-    public static void main(String[] args) {
-
-        // 1. Create a hand of 5 sorted random cards
-        Hand hand = new Hand();
-
-        // 2. Output the hand
-        System.out.println("Hand of 5 cards (sorted by rank): " + hand);
-
-        // 3. Generate 10 random cards & test each for matching rank
-        for (int i = 1; i <= 10; i++) {
-            Card randomCard = new Card();
-            String message;
-
-            if (hand.inHand(randomCard)) {
-                message = " - Positive, the card is contained in the hand";
-            } else {
-                message = " - Negative, no card is not contained in the hand";
-            }
-
-            System.out.println("Random card #" + i + ": " + randomCard + message);
+    // This method replaces a card, this is for high suit game where we will swap cards
+    public void replaceCard(int index, Card newCard) {
+        if (index >= 0 && index < cards.length) {
+            cards[index] = newCard;
+            Arrays.sort(cards); // Keeps the hand sorted
         }
+    }
+
+    // This method gives us all the cards
+    public Card[] getCards() {
+        return cards;
+    }
+
+    // This gives us the total score for a suit
+    public int getScoreForSuit(String suit) {
+        int total = 0;
+        for (Card c : cards) {
+            if (c.getSuit().equalsIgnoreCase(suit)) {
+                // Convert numeric rank to game points
+                int rankValue = c.getRankValue();
+                if (rankValue >= 0 && rankValue <= 8) total += rankValue + 2; // 2–10
+                else if (rankValue >= 9 && rankValue <= 11) total += 10;       // Jack, Queen, King
+                else if (rankValue == 12) total += 11;                        // Ace
+            }
+        }
+        return total;
     }
 }
