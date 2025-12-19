@@ -17,6 +17,17 @@ public class Hand {
 
         Arrays.sort(cards);  // Sort the 5 cards (Card implements Comparable)
     }
+    
+    // I added this new constructoro so that there can be no duplicate cards for the 2 players when playing the game
+    // So this constructor deals to both players from only one deck, to remove any potential problems
+    public Hand(Deck deck) {
+        cards = new Card[5]; // fixed size of 5
+        for (int i = 0; i < 5; i++) {
+            cards[i] = deck.deal(); // take top card from deck
+        }
+        Arrays.sort(cards); // keep hand sorted
+    }
+
 
     public boolean inHand(Card searchCard) {
         for (int i = 0; i < 5; i++) {
