@@ -1,0 +1,5 @@
+mustaa,35
+Malaika,31
+mama,29
+Akib,27
+Mustafa,25

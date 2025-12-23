@@ -1,5 +1,6 @@
 package cw2.project;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class GameLogic {
@@ -9,78 +10,160 @@ public class GameLogic {
     private int rounds;
     private Scanner scanner;
 
-    // Constructor
-    public GameLogic(Player[] players, int rounds) {
+    public GameLogic(Player[] players, int rounds, Scanner scanner) {
         this.players = players;
         this.rounds = rounds;
-        this.deck = new Deck();
-        this.scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
-    // Play the full game
+    // Play full game
     public void playGame() {
+
         for (int round = 1; round <= rounds; round++) {
-            System.out.println("\n=== Round " + round + " ===");
-            playRound();
+            System.out.println("\n==============================");
+            System.out.println("        ROUND " + round);
+            System.out.println("==============================");
+
+            deck = new Deck(); // fresh deck each round
+
+            for (Player player : players) {
+                playTurn(player);
+            }
         }
 
         displayFinalResults();
     }
 
-    // Play a single round
-    private void playRound() {
-        // Deal hands to each player
-        for (Player player : players) {
-            player.setHand(new Hand(deck)); // New hand from deck
-            System.out.println(player.getName() + "'s hand: " + player.getHand());
+    // One complete turn per player
+    private void playTurn(Player player) {
+
+        // Deal hand
+        player.setHand(new Hand(deck));
+
+        System.out.println("\n--------------------------------");
+        System.out.println(player.getName() + "'s TURN");
+        System.out.println("--------------------------------");
+
+        // Display hand
+        displayHand(player);
+
+        // ✅ Requirement: display maximum score achievable from a single suit (current hand)
+        String bestSuitNow = player.getHighestSuit();
+        int bestSuitScoreNow = player.getHand().getScoreForSuit(bestSuitNow);
+        System.out.println("Max score possible from a single suit right now: " + bestSuitNow + " = " + bestSuitScoreNow);
+
+        boolean isComputer = player.getName().equalsIgnoreCase("Computer");
+
+        // BONUS SUIT
+        if (isComputer) {
+            ComputerLogic ai = new ComputerLogic(player, deck);
+            ai.chooseBonusSuit();
+            ai.swapCards(); // use same AI instance
+        } else {
+            chooseBonusSuitHuman(player);
+            swapCardsHuman(player);
         }
 
-        // Each player chooses bonus suit and swaps cards
-        for (Player player : players) {
-            if (player.getName().equalsIgnoreCase("Computer")) {
-                // Computer player logic
-                ComputerLogic ai = new ComputerLogic(player, deck);
-                ai.chooseBonusSuit();
-                ai.swapCards();
-            } else {
-                // Human player chooses bonus suit
-                System.out.print(player.getName() + ", choose your bonus suit (Clubs/Diamonds/Hearts/Spades): ");
-                String suit = scanner.nextLine();
-                player.selectBonusSuit(suit);
+        // Final hand
+        System.out.println("\nFinal hand:");
+        displayHand(player);
 
-                // Human player can swap up to 4 cards
-                System.out.println("\n" + player.getName() + "'s current hand: " + player.getHand());
-                System.out.print("Enter card positions to swap (0-4, separated by space, max 4), or press Enter to keep all: ");
-                String line = scanner.nextLine();
-                if (!line.isEmpty()) {
-                    String[] parts = line.trim().split("\\s+");
-                    int[] indexes = new int[parts.length];
-                    for (int i = 0; i < parts.length; i++) {
-                        indexes[i] = Integer.parseInt(parts[i]);
-                    }
-                    player.swapCards(indexes, deck);
-                    System.out.println("Updated hand: " + player.getHand());
-                }
-            }
-        }
+        // Score
+        int score = player.calculateRoundScore();
+        System.out.println(player.getName() + "'s score this round: " + score);
+    }
 
-        // Calculate and display scores for this round
-        for (Player player : players) {
-            int roundScore = player.calculateRoundScore();
-            System.out.println(player.getName() + "'s score this round: " + roundScore);
+    // Display hand nicely A–E
+    private void displayHand(Player player) {
+        Card[] cards = player.getHand().getCards();
+        char[] labels = {'A', 'B', 'C', 'D', 'E'};
+
+        for (int i = 0; i < cards.length; i++) {
+            System.out.println(labels[i] + ". " + cards[i]);
         }
     }
 
-    // Display final results and winner
-    private void displayFinalResults() {
-        System.out.println("\n=== Final Scores ===");
-        Player winner = players[0];
-        for (Player player : players) {
-            System.out.println(player.getName() + ": " + player.getTotalScore());
-            if (player.getTotalScore() > winner.getTotalScore()) {
-                winner = player;
+    // Human bonus suit input
+    private void chooseBonusSuitHuman(Player player) {
+
+        while (true) {
+            System.out.print("\nChoose bonus suit (C = Clubs, D = Diamonds, H = Hearts, S = Spades): ");
+            String input = scanner.nextLine().trim().toUpperCase();
+
+            switch (input) {
+                case "C":
+                case "CLUBS":
+                    player.selectBonusSuit("Clubs");
+                    return;
+                case "D":
+                case "DIAMONDS":
+                    player.selectBonusSuit("Diamonds");
+                    return;
+                case "H":
+                case "HEARTS":
+                    player.selectBonusSuit("Hearts");
+                    return;
+                case "S":
+                case "SPADES":
+                    player.selectBonusSuit("Spades");
+                    return;
+                default:
+                    System.out.println("Invalid input. Please enter C, D, H or S.");
             }
         }
-        System.out.println("Winner: " + winner.getName() + "!");
+    }
+
+    // Human card swapping
+    private void swapCardsHuman(Player player) {
+
+        System.out.print("\nEnter letters of cards to swap (A to E, max 4, separated by spaces), or press Enter to keep all: ");
+
+        String line = scanner.nextLine().trim().toUpperCase();
+        if (line.isEmpty()) return;
+
+        String[] parts = line.split("\\s+");
+        if (parts.length > 4) {
+            System.out.println("You can only swap up to 4 cards.");
+            return;
+        }
+
+        int[] indexes = new int[parts.length];
+        int count = 0;
+
+        for (String p : parts) {
+            if (p.isEmpty()) continue;
+            char c = p.charAt(0);
+            int idx = c - 'A';
+
+            if (idx >= 0 && idx < 5) {
+                indexes[count++] = idx;
+            } else {
+                System.out.println("Invalid card letter: " + c);
+            }
+        }
+
+        if (count == 0) return;
+
+        int[] finalIndexes = new int[count];
+        System.arraycopy(indexes, 0, finalIndexes, 0, count);
+
+        player.swapCards(finalIndexes, deck);
+    }
+
+    // ✅ Requirement: final results in descending order
+    private void displayFinalResults() {
+
+        System.out.println("\n==============================");
+        System.out.println("        FINAL RESULTS");
+        System.out.println("==============================");
+
+        Player[] sorted = players.clone();
+        Arrays.sort(sorted, (a, b) -> Integer.compare(b.getTotalScore(), a.getTotalScore()));
+
+        for (Player p : sorted) {
+            System.out.println(p.getName() + ": " + p.getTotalScore());
+        }
+
+        System.out.println("\nWinner: " + sorted[0].getName());
     }
 }

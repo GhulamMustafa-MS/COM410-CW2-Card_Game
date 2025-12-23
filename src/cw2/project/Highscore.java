@@ -3,12 +3,23 @@ package cw2.project;
 import java.io.*;
 import java.util.*;
 
-public class HighScore {
+public class Highscore {
 
-    private static final String FILE_NAME = "highscores.txt"; // file to store scores
-    private List<Integer> scores;
+    private static final String FILE_NAME = "highscores.txt";
+    private ArrayList<ScoreEntry> scores;
 
-    public HighScore() {
+    // Inner class to store name + score
+    private static class ScoreEntry {
+        String name;
+        int score;
+
+        ScoreEntry(String name, int score) {
+            this.name = name;
+            this.score = score;
+        }
+    }
+
+    public Highscore() {
         scores = new ArrayList<>();
         loadScores();
     }
@@ -16,65 +27,70 @@ public class HighScore {
     // Load scores from file
     private void loadScores() {
         File file = new File(FILE_NAME);
-        if (!file.exists()) {
-            try {
-                file.createNewFile(); // create file if it doesn't exist
-            } catch (IOException e) {
-                System.out.println("Error creating high score file: " + e.getMessage());
-            }
-        }
 
-        try (Scanner scanner = new Scanner(file)) {
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                try {
-                    int score = Integer.parseInt(line.trim());
-                    scores.add(score);
-                } catch (NumberFormatException ignored) {
-                    // skip invalid lines
+                String[] parts = line.split(",");
+                if (parts.length == 2) {
+                    String name = parts[0];
+                    int score = Integer.parseInt(parts[1]);
+                    scores.add(new ScoreEntry(name, score));
                 }
             }
-            Collections.sort(scores, Collections.reverseOrder()); // highest first
-        } catch (FileNotFoundException e) {
-            System.out.println("High score file not found: " + e.getMessage());
+            scanner.close();
+
+            sortAndTrim();
+
+        } catch (Exception e) {
+            System.out.println("Error loading high scores.");
         }
     }
 
-    // Add a new score and update the file if it makes top 5
-    public void addScore(int score) {
-        scores.add(score);
-        Collections.sort(scores, Collections.reverseOrder()); // highest first
-        if (scores.size() > 5) {
-            scores = scores.subList(0, 5); // keep only top 5
-        }
+    // Add new score
+    public void addScore(String name, int score) {
+        scores.add(new ScoreEntry(name, score));
+        sortAndTrim();
         saveScores();
     }
 
-    // Save current scores to file
-    private void saveScores() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {
-            for (int score : scores) {
-                writer.println(score);
-            }
-        } catch (IOException e) {
-            System.out.println("Error writing high score file: " + e.getMessage());
+    // Sort scores and keep top 5
+    private void sortAndTrim() {
+        scores.sort((a, b) -> b.score - a.score);
+        if (scores.size() > 5) {
+            scores = new ArrayList<>(scores.subList(0, 5));
         }
     }
 
-    // Display top 5 scores
+    // Save scores to file
+    private void saveScores() {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME));
+            for (ScoreEntry entry : scores) {
+                writer.println(entry.name + "," + entry.score);
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Error saving high scores.");
+        }
+    }
+
+    // Display scores
     public void displayScores() {
         System.out.println("\n=== High Scores ===");
         if (scores.isEmpty()) {
-            System.out.println("No high scores yet!");
+            System.out.println("No high scores yet.");
             return;
         }
-        for (int i = 0; i < scores.size(); i++) {
-            System.out.println((i + 1) + ". " + scores.get(i));
-        }
-    }
 
-    // Optional: get top score
-    public int getTopScore() {
-        return scores.isEmpty() ? 0 : scores.get(0);
+        for (int i = 0; i < scores.size(); i++) {
+            ScoreEntry s = scores.get(i);
+            System.out.println((i + 1) + ". " + s.name + " - " + s.score);
+        }
     }
 }
