@@ -83,12 +83,12 @@ public class GameLogic {
         }
     }
 
-    // Human bonus suit input
+    // Choose the bonus suit
     private void chooseBonusSuitHuman(Player player) {
 
         while (true) {
             System.out.print("\nChoose bonus suit (C = Clubs, D = Diamonds, H = Hearts, S = Spades): ");
-            String input = scanner.nextLine().trim().toUpperCase();
+            String input = scanner.nextLine().trim().toUpperCase(); // This will make sure case does not matter
 
             switch (input) {
                 case "C":
@@ -150,7 +150,7 @@ public class GameLogic {
         player.swapCards(finalIndexes, deck);
     }
 
-    // ✅ Requirement: final results in descending order
+    // Final results in descending order
     private void displayFinalResults() {
 
         System.out.println("\n==============================");

@@ -1,11 +1,9 @@
 package cw2.project;
 
-import java.util.Random; // Import Random Class
+import java.util.Random;
 
-// Class definition: Represents a single playing card with rank and suit
 public class Card implements Comparable<Card> {
 
-    // Instance variables: store the numeric rank and suit of the card
     private int rank;
     private int suit;
 

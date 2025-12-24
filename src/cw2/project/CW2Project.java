@@ -12,7 +12,7 @@ public class CW2Project {
         System.out.println("      Welcome to HighSuit");
         System.out.println("=================================\n");
 
-        // Choose number of players (safe input)
+        // Choose number of Players
         int numPlayers = readIntInRange(scanner, "Enter number of players (1 or 2): ", 1, 2);
 
         Player[] players = new Player[numPlayers];
@@ -25,10 +25,10 @@ public class CW2Project {
             players[i] = new Player(name);
         }
 
-        // Choose number of rounds (safe input)
+        // Choose number of rounds
         int rounds = readIntInRange(scanner, "Enter number of rounds (1 to 3): ", 1, 3);
 
-        // Start the game (PASS SAME SCANNER to avoid double Scanner issues)
+        // Start the game
         GameLogic game = new GameLogic(players, rounds, scanner);
         game.playGame();
 
@@ -58,7 +58,8 @@ public class CW2Project {
         System.out.println("\nThank you for playing HighSuit!");
         scanner.close();
     }
-
+        // Helper method made to simplify code where user needs to enter a number between 2 ranges
+        // such as choosing number of players or rounds
     private static int readIntInRange(Scanner scanner, String prompt, int min, int max) {
         while (true) {
             System.out.print(prompt);

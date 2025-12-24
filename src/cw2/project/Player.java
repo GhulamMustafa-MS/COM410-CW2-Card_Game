@@ -23,7 +23,7 @@ public class Player {
         this.totalScore = 0;
     }
 
-    // --- Basic getters ---
+    // Basic getters
     public String getName() { return name; }
     public Hand getHand() { return hand; }
     public String getBonusSuit() { return bonusSuit; }
