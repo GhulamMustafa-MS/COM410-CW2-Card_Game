@@ -28,7 +28,7 @@ public class PlayerTest {
     public void playerRoundScoreAddsBonusWhenBestSuitMatches() {
         Player p = new Player("TestPlayer");
 
-        Hand hand = new Hand();
+        Hand hand = new Hand(new Deck()); // ✅ FIXED (no more Hand())
 
         // Hearts = 2 + Jack(10) + Ace(11) = 23
         hand.replaceCard(0, new Card(0, 2));   // 2 Hearts
@@ -53,7 +53,7 @@ public class PlayerTest {
     public void playerSwapReplacesSpecificIndexes() {
         Player p = new Player("TestPlayer");
 
-        Hand hand = new Hand();
+        Hand hand = new Hand(new Deck()); // ✅ FIXED (no more Hand())
 
         // Known starting hand (all Clubs)
         hand.replaceCard(0, new Card(0, 0)); // 2 Clubs
@@ -87,4 +87,3 @@ public class PlayerTest {
         assertTrue(hasJackHearts);
     }
 }
-

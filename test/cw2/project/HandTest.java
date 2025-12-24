@@ -7,7 +7,7 @@ public class HandTest {
 
     @Test
     public void scoreForSuitCalculatesCorrectly() {
-        Hand hand = new Hand(); // random initially, we override the cards
+        Hand hand = new Hand(new Deck()); // ✅ FIXED (no more Hand())
 
         // Hearts: 2 + Jack(10) + Ace(11) = 23
         hand.replaceCard(0, new Card(0, 2));   // 2 of Hearts
@@ -28,7 +28,7 @@ public class HandTest {
 
     @Test
     public void inHandChecksRankAndSuit() {
-        Hand hand = new Hand();
+        Hand hand = new Hand(new Deck()); // ✅ FIXED (no more Hand())
 
         // Put known cards in
         hand.replaceCard(0, new Card(5, 1));   // 7 of Diamonds
